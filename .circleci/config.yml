@@ -9,6 +9,9 @@ jobs:
       - run:
           name: Install Dependencies
           command: npm ci
+      - run:
+          name: Setup Service Account
+          command: echo ${CLIENT_SECRET} | base64 -d > $HOME/client-secret.json
       - persist_to_workspace:
           root: ./
           paths:
