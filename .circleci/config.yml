@@ -1,0 +1,107 @@
+version: 2
+jobs:
+  setup:
+    docker:
+      - image: circleci/node:10.15.3
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - .
+      - run:
+          name: Install Pub/Sub Emulator
+          command: gcloud --quiet components install pubsub-emulator
+      - run:
+          name: Update components
+          command: gcloud --quiet components update
+  build:
+    docker:
+      - image: circleci/node:10.15.3
+    steps:
+      - attach_workspace:
+            at: ./
+      - run:
+          name: Build
+          command: npm run only:build
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - dist
+  lint:
+    docker:
+      - image: circleci/node:10.15.3
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Lint
+          command: npm run lint -- --format junit --output-file ./reports/eslint/results.xml
+      - store_test_results:
+          path: ./reports
+      - store_artifacts:
+          path: ./reports
+  test:
+    docker:
+      - image: circleci/node:10.15.3
+    environment:
+      MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Unit Tests
+          command: npm run only:test
+      # - run:
+      #     name: Coverage
+      #     command: npm run only:lCov
+      # - run:
+      #     name: Upload to codecov
+      #     command: npm run ci:codecov
+      - store_test_results:
+          path: ./reports
+      - store_artifacts:
+          path: ./reports
+  publish:
+    docker:
+      - image: circleci/node:10.15.3
+    steps:
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Calculate Version
+          command: npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+      - run:
+          name: Publish
+          command: ./scripts/release.sh
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - setup
+      - build:
+          context: 6rs-public-npm
+          requires:
+            - setup
+      - lint:
+          context: 6rs-public-npm
+          requires:
+            - setup
+      - test:
+          context: 6rs-public-npm
+          requires:
+            - build
+      - publish:
+          context: 6rs-public-npm
+          requires:
+            - setup
+            - build
+            - lint
+            - test
+          filters:
+            branches:
+              only: master

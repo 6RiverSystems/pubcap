@@ -1,15 +1,30 @@
 {
-	"files": [
-		"./src/pubcap.ts"
+	"compileOnSave": true,
+	"include": [
+		"src",
+		"test"
 	],
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"scripts",
+		"coverage",
+		"dist"
 	],
 	"compilerOptions": {
-		"noImplicitAny": true,
-		"target": "es6",
+		"outDir": "dist",
+		"target": "es2018",
     "module": "commonjs",
 		"moduleResolution": "node",
-		"sourceMap": true
+		"allowUnreachableCode": false,
+		"strict": true,
+		"sourceMap": true,
+		"declaration": true,
+		"forceConsistentCasingInFileNames": true,
+		"removeComments": false,
+		"preserveConstEnums": true,
+		"experimentalDecorators": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"incremental": true
 	}
 }

@@ -1,16 +1,20 @@
 {
-	"name": "@sixriver/pubcap",
+	"name": "@6river/pubcap",
 	"version": "0.0.1",
 	"description": "Google Pub/Sub message Capture",
-	"main": "dist/pubcap.js",
+	"main": "dist/src/pubcap.js",
 	"directories": {
 		"test": "test"
 	},
 	"scripts": {
-		"prepublish": "npm test && gulp",
-		"pretest": "npm run eslint",
-		"test": "./node_modules/.bin/mocha",
-		"eslint": "./node_modules/.bin/eslint ."
+		"only:build": "tsc",
+		"only:test": "NODE_ENV=test mocha ${MOCHA_OPTS}",
+		"prebuild": "npm run lint",
+		"build": "npm run only:build",
+		"pretest": "npm run build",
+		"test": "npm run only:test",
+		"lint": "./node_modules/.bin/eslint .",
+		"clean": "rm -rf dist/"
 	},
 	"repository": {
 		"url": "git+ssh://git@github.com/6riverSystems/pubcap.git"
@@ -36,9 +40,6 @@
 		"eslint-config-6river": "^1.0.3",
 		"eslint-plugin-mocha": "^5.3.0",
 		"eslint-plugin-typescript": "^0.8.1",
-		"gulp": "^4.0.2",
-		"gulp-sourcemaps": "^2.6.5",
-		"gulp-typescript": "^5.0.1",
 		"husky": "^0.14.3",
 		"mocha": "^6.1.4",
 		"ts-node": "^8.3.0",

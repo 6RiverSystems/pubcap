@@ -66,7 +66,7 @@ describe('PubCap', function() {
 			for (let i = 0; i < COUNT; i++) {
 				fastToPublishTopic.publishJSON({i});
 			}
-			const messages = await pubcap.messages(fastToPublishTopic);
+			const messages: {i: number}[] = await pubcap.messages(fastToPublishTopic);
 			messages.length.should.equal(COUNT);
 			messages[0].should.deep.equal({i: 0});
 			messages[1].should.deep.equal({i: 1});
