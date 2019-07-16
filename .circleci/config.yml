@@ -83,7 +83,7 @@ jobs:
       - attach_workspace:
           at: ./
       - run:
-          name: Calculate Version
+          name: Setup NPM auth token
           command: npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
       - run:
           name: Publish
