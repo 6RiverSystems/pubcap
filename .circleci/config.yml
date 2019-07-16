@@ -14,7 +14,7 @@ jobs:
           command: echo ${CLIENT_SECRET} | base64 -d > $HOME/client-secret.json
       - run:
           name: Docker Login
-          command: docker login -u _json_key -p "$(cat ${HOME}/client-secret.json)" -e noreply@6river.com https://gcr.io
+          command: docker login -u _json_key -p "$(cat ${HOME}/client-secret.json)" https://gcr.io
       - persist_to_workspace:
           root: ./
           paths:
