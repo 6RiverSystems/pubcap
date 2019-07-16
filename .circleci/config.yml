@@ -3,7 +3,7 @@ jobs:
   setup:
     docker:
       - image: circleci/node:10.15.3
-      # - image: google/cloud-sdk
+      - image: google/cloud-sdk
     steps:
       - checkout
       - run:
@@ -13,9 +13,9 @@ jobs:
           root: ./
           paths:
             - .
-      # - run:
-      #     name: Install Pub/Sub Emulator
-      #     command: gcloud --quiet components install pubsub-emulator
+      - run:
+          name: Install Pub/Sub Emulator
+          command: gcloud --quiet components install pubsub-emulator
       # - run:
       #     name: Update components
       #     command: gcloud --quiet components update
