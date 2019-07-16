@@ -54,12 +54,12 @@ jobs:
   test:
     docker:
       - image: circleci/node:10.15.3
-        # environment:
-        #   MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
-      # - image: singularities/pubsub-emulator
-      #   environment:
-      #     PUBSUB_PROJECT_ID: pubcap-test
-      #     PUBSUB_LISTEN_ADDRESS: 0.0.0.0:8085
+        environment:
+          MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
+      - image: singularities/pubsub-emulator
+        environment:
+          PUBSUB_PROJECT_ID: pubcap-test
+          PUBSUB_LISTEN_ADDRESS: 0.0.0.0:8085
     steps:
       - attach_workspace:
           at: ./
