@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  sixrs-gke: sixriversystems/sixrs-gke@2
 jobs:
   setup:
     docker:
@@ -6,31 +8,21 @@ jobs:
       - image: google/cloud-sdk
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Install Dependencies
           command: npm ci
-      - run:
-          name: Setup Service Account
-          command: echo ${CLIENT_SECRET} | base64 -d > $HOME/client-secret.json
-      - run:
-          name: Docker Login
-          command: docker login -u _json_key -p "$(cat ${HOME}/client-secret.json)" https://gcr.io
+      - sixrs-gke/docker-login
       - persist_to_workspace:
           root: ./
           paths:
             - .
-      # - run:
-      #     name: Install Pub/Sub Emulator
-      #     command: gcloud --quiet components install pubsub-emulator
-      # - run:
-      #     name: Update components
-      #     command: gcloud --quiet components update
   build:
     docker:
       - image: circleci/node:10.15.3
     steps:
       - attach_workspace:
-            at: ./
+          at: ./
       - run:
           name: Build
           command: npm run only:build
@@ -92,7 +84,8 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - setup
+      - setup:
+          context: 6rs-circle
       - build:
           context: 6rs-public-npm
           requires:
