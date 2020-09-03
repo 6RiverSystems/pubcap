@@ -2,7 +2,7 @@ version: 2
 jobs:
   setup:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.16.3
       - image: google/cloud-sdk
     steps:
       - checkout
@@ -27,7 +27,7 @@ jobs:
       #     command: gcloud --quiet components update
   build:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.16.3
     steps:
       - attach_workspace:
           at: ./
@@ -40,7 +40,7 @@ jobs:
             - dist
   lint:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.16.3
     steps:
       - attach_workspace:
           at: ./
@@ -53,7 +53,7 @@ jobs:
           path: ./reports
   test:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.16.3
         environment:
           MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
       - image: singularities/pubsub-emulator
@@ -78,7 +78,7 @@ jobs:
           path: ./reports
   publish:
     docker:
-      - image: circleci/node:10.15.3
+      - image: circleci/node:12.16.3
     steps:
       - attach_workspace:
           at: ./

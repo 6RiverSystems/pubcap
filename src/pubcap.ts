@@ -100,7 +100,7 @@ export class PubCap {
 		this.channels = new Map();
 	}
 
-	// waits for messages to arrive and then resets all the cahnnels
+	// waits for messages to arrive and then resets all the channels
 	async drain({timeout = this.opts.drainTimeout}: {timeout?: number} = {}) {
 		await sleep(timeout);
 		this.resetTime = new Date();
