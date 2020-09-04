@@ -1,5 +1,5 @@
 import {PubSub, Topic} from '@google-cloud/pubsub';
-import {should} from 'chai';
+import {should, assert} from 'chai';
 import {PubCap} from '../src/pubcap';
 
 should();
@@ -23,11 +23,13 @@ describe('PubCap', function() {
 	before(async () => {
 		pubsub = new PubSub({projectId: PUBSUB_PROJECT_ID});
 
-		[fastToPublishTopic] = await pubsub.topic(FAST_PUB_TOPIC).get({autoCreate: true});
-		fastToPublishTopic.setPublishOptions({batching: {maxMilliseconds: FAST_BATCHING_TIMEOUT}});
+		// have to include batching options when getting topic, setPublishOptions can't change it,
+		// see https://github.com/googleapis/nodejs-pubsub/issues/1103
+		fastToPublishTopic = pubsub.topic(FAST_PUB_TOPIC, {batching: {maxMilliseconds: FAST_BATCHING_TIMEOUT}});
 		// create a second topic and set it up to wait long to publish messages
-		[slowToPublishTopic] = await pubsub.topic(SLOW_PUB_TOPIC).get({autoCreate: true});
-		slowToPublishTopic.setPublishOptions({batching: {maxMilliseconds: SLOW_BATCHING_TIMEOUT}});
+		slowToPublishTopic = pubsub.topic(SLOW_PUB_TOPIC, {batching: {maxMilliseconds: SLOW_BATCHING_TIMEOUT}});
+		// the return from `.get` won't preserve our batching options, and the issue above means we can't re-set them
+		await Promise.all([fastToPublishTopic, slowToPublishTopic].map((t) => t.get({autoCreate: true})));
 
 		pubcap = new PubCap({
 			messagesTimeout: 100,
@@ -46,6 +48,8 @@ describe('PubCap', function() {
 
 	beforeEach(async () => {
 		await pubcap.drain();
+		assert.strictEqual(fastToPublishTopic.publisher.queue.batchOptions.maxMilliseconds, FAST_BATCHING_TIMEOUT);
+		assert.strictEqual(slowToPublishTopic.publisher.queue.batchOptions.maxMilliseconds, SLOW_BATCHING_TIMEOUT);
 	});
 
 	context('setup', function() {
@@ -75,7 +79,6 @@ describe('PubCap', function() {
 
 	context('drain messages', function() {
 		it('should wait for messages and then reset message channels', async function() {
-			debugger;
 			fastToPublishTopic.publishJSON({foo: 'bar', now: (new Date()).getTime()});
 			await pubcap.drain();
 
