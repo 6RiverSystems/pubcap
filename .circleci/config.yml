@@ -1,33 +1,20 @@
-version: 2
+version: 2.1
+
+orbs:
+  sixrs-gke: sixriversystems/sixrs-gke@3
+
 jobs:
   setup:
     docker:
-      - image: circleci/node:12.16.3
-      - image: google/cloud-sdk
+      - image: cimg/node:14.17.6
     steps:
       - checkout
       - run:
           name: Install Dependencies
           command: npm ci
-      - run:
-          name: Setup Service Account
-          command: echo ${CLIENT_SECRET} | base64 -d > $HOME/client-secret.json
-      - run:
-          name: Docker Login
-          command: docker login -u _json_key -p "$(cat ${HOME}/client-secret.json)" https://gcr.io
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - .
-      # - run:
-      #     name: Install Pub/Sub Emulator
-      #     command: gcloud --quiet components install pubsub-emulator
-      # - run:
-      #     name: Update components
-      #     command: gcloud --quiet components update
   build:
     docker:
-      - image: circleci/node:12.16.3
+      - image: cimg/node:14.17.6
     steps:
       - attach_workspace:
           at: ./
@@ -40,7 +27,7 @@ jobs:
             - dist
   lint:
     docker:
-      - image: circleci/node:12.16.3
+      - image: cimg/node:14.17.6
     steps:
       - attach_workspace:
           at: ./
@@ -53,32 +40,31 @@ jobs:
           path: ./reports
   test:
     docker:
-      - image: circleci/node:12.16.3
+      - image: cimg/node:14.17.6
         environment:
           MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
-      - image: singularities/pubsub-emulator
+      - image: gcr.io/plasma-column-128721/mmmbbb-service:latest
+        auth:
+          username: _json_key
+          password: $GCLOUD_SERVICE_KEY
         environment:
-          PUBSUB_PROJECT_ID: pubcap-test
-          PUBSUB_LISTEN_ADDRESS: 0.0.0.0:8802
+          NODE_ENV: development
+          DATABASE_URL: sqlite:///tmp/mmmbbb.sqlite
+          LOG_LEVEL: debug
+          PORT: 8801
     steps:
       - attach_workspace:
           at: ./
       - run:
           name: Unit Tests
           command: npm run only:test
-      # - run:
-      #     name: Coverage
-      #     command: npm run only:lCov
-      # - run:
-      #     name: Upload to codecov
-      #     command: npm run ci:codecov
       - store_test_results:
           path: ./reports
       - store_artifacts:
           path: ./reports
   publish:
     docker:
-      - image: circleci/node:12.16.3
+      - image: cimg/node:14.17.6
     steps:
       - attach_workspace:
           at: ./
@@ -94,15 +80,13 @@ workflows:
     jobs:
       - setup
       - build:
-          context: 6rs-public-npm
           requires:
             - setup
       - lint:
-          context: 6rs-public-npm
           requires:
             - setup
       - test:
-          context: 6rs-public-npm
+          context: 6rs-circle
           requires:
             - setup
       - publish:
