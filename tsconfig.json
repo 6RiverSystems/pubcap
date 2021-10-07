@@ -1,19 +1,11 @@
 {
 	"compileOnSave": true,
-	"include": [
-		"src",
-		"test"
-	],
-	"exclude": [
-		"node_modules",
-		"scripts",
-		"coverage",
-		"dist"
-	],
+	"include": ["src", "test"],
+	"exclude": ["node_modules", "scripts", "coverage", "dist"],
 	"compilerOptions": {
 		"outDir": "dist",
-		"target": "es2018",
-    "module": "commonjs",
+		"target": "es2020",
+		"module": "commonjs",
 		"moduleResolution": "node",
 		"allowUnreachableCode": false,
 		"strict": true,
