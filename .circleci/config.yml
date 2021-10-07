@@ -52,8 +52,8 @@ jobs:
           username: _json_key
           password: $GCLOUD_SERVICE_KEY
         environment:
-          NODE_ENV: development
-          DATABASE_URL: sqlite:///tmp/mmmbbb.sqlite
+          # specifying this as test will make it default to a SQLite database
+          NODE_ENV: test
           LOG_LEVEL: debug
           PORT: 8801
     steps:
