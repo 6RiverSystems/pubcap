@@ -47,7 +47,7 @@ jobs:
       - image: cimg/node:14.17.6
         environment:
           MOCHA_OPTS: --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit/mocha/mocha.xml
-      - image: gcr.io/plasma-column-128721/mmmbbb-service:latest
+      - image: gcr.io/plasma-column-128721/mmmbbb:latest
         auth:
           username: _json_key
           password: $GCLOUD_SERVICE_KEY
